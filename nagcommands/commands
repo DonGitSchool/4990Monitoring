@@ -1,0 +1,39 @@
+#Don Commands
+define command {
+	command_name check_dns
+	command_line /usr/local/nagios/libexec/check_dns -H google.com -s $HOSTADDRESS$
+}
+define command {
+    command_name    check_ntp
+    command_line    $USER1$/tinyco-check-ntp.rb $HOSTADDRESS$
+}
+
+define command {
+    command_name    check_mysql_replication
+    command_line    /usr/local/nagios/libexec/pmp-check-mysql-replication-delay -l $_HOSTSQL_USER$ -p $_HOSTSQL_PASS$ -H $HOSTADDRESS$ | tail -n 1
+}
+
+define command {
+	command_name	check_temp
+	command_line 	/usr/local/nagios/libexec/tinyco-check-temp 
+}
+
+define command{
+	command_name    check_tps_report
+	command_line    /usr/local/nagios/libexec/tinyco-check-tps-report
+}
+
+define command{
+	command_name    check_cpu_load
+	command_line    /usr/local/nagios/libexec/tinyco-check-cpuload-SNMP $HOSTADDRESS$
+}
+
+define command{
+	command_name	check_black_toner
+	command_line /usr/local/nagios/libexec/check_snmp_printer -H $HOSTADDRESS$ -t consumable -o black -w 70 -c 80
+}
+
+define command{
+    command_name    check_temperature
+    command_line    /usr/local/nagios/libexec/tinyco-check-temp-SNMP tinycosecret $HOSTADDRESS$ 1.3.6.1.4.1.9.9.13.1.3.1.3.1008
+}

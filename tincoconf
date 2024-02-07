@@ -1,0 +1,205 @@
+define host {
+  name            tinyco_pf
+  use             noisy-by-nature
+  host_name       tinyco-pf
+  address         192.168.30.1
+}
+
+define host {
+  name            tinyco-web
+  use             noisy-by-nature
+  host_name       tinyco-web
+  address         192.168.30.10
+  parents         tinyco-pf
+}
+
+define host {
+  name            tinyco-winsrv
+  use             noisy-by-nature
+  host_name       tinyco-winsrv
+  address         192.168.30.11
+  parents         tinyco-pf
+  max_check_attempts	3
+}
+
+define host {
+  name                    noisy-by-nature
+  use                     linux-server       
+  notification_interval   30                 # Set notification interval to 30 minutes
+  register                0                  
+}
+
+
+define host{
+    use                     generic-host
+    host_name               tinyco-ISP
+    alias                   TinyCo ISP
+    address                 xxx.xx.206.49
+    max_check_attempts      3
+    check_command       check-host-alive
+}
+
+
+define host{
+    use                     generic-host
+    host_name               tinyco-hq
+    alias                   TinyCo HQ
+    address                 10.150.110.1
+    parents                 tinyco-pf
+    max_check_attempts      3
+    check_command       check-host-alive
+}
+
+define host{
+    use                     generic-host
+    host_name               tinyco-sacramento
+    alias                   TinyCo Sacramento
+    address                 10.150.110.2
+    parents                 tinyco-hq
+    max_check_attempts      3
+    check_command       check-host-alive
+}
+
+define host{
+    use                     generic-host
+    host_name               tinyco-fayetteville
+    alias                   TinyCo Fayetteville
+    address                 10.150.110.3
+    parents                 tinyco-hq
+    max_check_attempts      3
+    check_command       check-host-alive
+}
+
+define host{
+    use                     generic-host
+    host_name               tinyco-miami
+    alias                   TinyCo Miami
+    address                 10.150.110.4
+    parents                 tinyco-hq
+    max_check_attempts      3
+    check_command       check-host-alive
+
+}
+
+define host{
+    use                     generic-host
+    host_name               printer-1
+    alias                   Printer 1
+    address                 xxx.xx.197.212
+    parents                 tinyco-pf
+    max_check_attempts      3
+    check_command       check-host-alive
+
+}
+define host{
+    use                     generic-host
+    host_name               tinyco-db-master
+    alias                   Tinyco db master/smb
+    address                 xxx.xx.200.165
+    max_check_attempts      5
+    check_command       check-host-alive
+}
+
+define host{
+    	use                     generic-host
+    	host_name               tinyco-db-slave
+    	alias                   Tinyco db slave
+    	address                 xxx.xx.200.166
+    	max_check_attempts      3
+    	check_command       check-host-alive
+    	_sql_user	nagiosdude	
+    	_sql_pass	nagiosdudepw
+}
+
+define host{
+    	use                     generic-host
+    	host_name               tinyco-data-center
+    	alias                   Tinyco Data Center
+    	address                 xxx.xx.200.162
+    	max_check_attempts      3
+    	check_command	check-host-alive
+}
+define host{
+	use                     linux-server
+    	host_name               tinyco-smb
+   	alias                   TinyCo SMB Server
+	address                 xxx.xx.200.165
+	check_command       check-host-alive
+}
+define host{
+	use             generic-host
+	host_name       datacenter-2
+	alias           Datacenter 2
+	address         10.150.110.5
+	check_command       check-host-alive
+	max_check_attempts	3
+}
+
+
+# Define services to monitor
+define service{
+    use                     generic-service
+    host_name               tinyco-pf,tinyco-winsrv
+    service_description     Is DNS boi working
+    check_command           check_dns!google.com
+}
+
+define service{
+    use                     generic-service
+    host_name               tinyco-pf,tinyco-web
+    service_description     Is HTTP working
+    check_command           check_http!-I $HOSTADDRESS$
+}
+
+define service {
+  name                  check-ntp
+  use                   generic-service
+  service_description   is ntp working
+  check_command         check_ntp
+  host_name             tinyco-pf, tinyco-winsrv
+}
+
+define service {
+	name	check-mysql-replication
+	use	generic-service
+	service_description	Is mysql truly replicating
+	check_command	check_mysql_replication
+	host_name	tinyco-db-slave 
+}
+
+define service {
+        name    check-is-spicy
+        use     generic-service
+        service_description	is spicy
+        check_command   check_temp
+        host_name       tinyco-data-center
+}
+define service{
+        use                     generic-service
+        host_name               tinyco-smb
+        service_description     Check TPS Report
+        check_command           check_tps_report
+}
+
+define service{
+	use                     generic-service
+	host_name               tinyco-pf,tinyco-winsrv,tinyco-web
+	service_description     CPU Load Test
+	check_command           check_cpu_load
+	flap_detection_enabled  0
+}
+
+define service{
+	use			generic-service
+	host_name		printer-1
+	service_description	Black Toner Check
+	check_command		check_black_toner
+}
+
+define service{
+    use                     generic-service
+    host_name               datacenter-2
+    service_description     Temperature thru SNMP Check
+    check_command           check_temperature
+}
+

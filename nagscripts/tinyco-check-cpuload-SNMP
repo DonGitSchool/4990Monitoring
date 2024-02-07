@@ -1,0 +1,35 @@
+#!/bin/bash
+COMMUNITY=tinycosecret
+
+#get host address from the command-line arguments
+IP=$1
+
+#get CPU load values
+LOAD_VALUES=$(snmpwalk -v 2c -c $COMMUNITY $IP 1.3.6.1.2.1.25.3.3.1.2 -Ov -OQ | awk '{ print $1 }')
+
+#make sure valid values were received
+if [ -z "$LOAD_VALUES" ]; then
+    echo "CRITICAL - No response received from SNMP query"
+    exit 2
+fi
+
+#Get the average load
+AVERAGE_LOAD=$(echo $LOAD_VALUES | awk '{ total = 0; for (i=1; i<=NF; i++) total+=$i; average = total/NF; print average }')
+
+#Warning and critial threshold percentages
+WARN_THRESHOLD=50
+CRIT_THRESHOLD=75
+
+#check if the average load is above the critical threshold
+if (( $(echo "$AVERAGE_LOAD > $CRIT_THRESHOLD" | bc -l) )); then
+    echo "CRITICAL - Average CPU Load is ${AVERAGE_LOAD}%"
+    exit 2
+# Check if the average load is above the warning threshold
+elif (( $(echo "$AVERAGE_LOAD > $WARN_THRESHOLD" | bc -l) )); then
+    echo "WARNING - Average CPU Load is ${AVERAGE_LOAD}%"
+    exit 1
+else
+    echo "OK - Average CPU Load is ${AVERAGE_LOAD}%"
+    exit 0
+fi
+

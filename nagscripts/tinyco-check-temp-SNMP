@@ -1,0 +1,28 @@
+#!/bin/bash
+COMMUNITY=$1
+HOST=$2
+OID=$3
+WARNING=65
+CRITICAL=85
+
+#Get the temp
+TEMP=$(snmpget -v 2c -c $COMMUNITY $HOST $OID | awk '{ print $4 }')
+
+#make sure we got a temp reading
+if [ -z "$TEMP" ]; then
+    echo "No temperature reading"
+    exit 3 # UNKNOWN status in Nagios
+fi
+
+#Is it spicy?
+if (( $(echo "$TEMP >= $CRITICAL" | bc -l) )); then
+    echo "CRITICAL - Temperature is $TEMP"
+    exit 2 # CRITICAL status in Nagios
+elif (( $(echo "$TEMP >= $WARNING" | bc -l) )); then
+    echo "WARNING - Temperature is $TEMP"
+    exit 1 # WARNING status in Nagios
+else
+    echo "OK - Temperature is $TEMP"
+    exit 0 # OK status in Nagios
+fi
+

@@ -1,0 +1,20 @@
+#!/bin/bash
+
+# Variables
+SMB_SERVER="xxx.xx.200.165"
+SMB_SHARE="share"
+SMB_FILE="flag"
+LOCAL_FILE="/tmp/tps-report"
+
+# Get the file
+smbget -a smb://$SMB_SERVER/$SMB_SHARE/$SMB_FILE -o $LOCAL_FILE -q
+
+# Check if the file exists and is over 80KB
+if [ -e $LOCAL_FILE ] && [ $(stat -c%s "$LOCAL_FILE") -ge 81920 ]
+then
+  echo "File exists and is over 80KB."
+else
+  echo "File does not exist or is not over 80KB."
+  exit 1
+fi
+

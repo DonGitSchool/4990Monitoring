@@ -1,0 +1,32 @@
+#!/bin/bash
+
+# Nagios return codes
+OK=0
+WARNING=1
+CRITICAL=2
+UNKNOWN=3
+
+# Fetch the temperature
+TEMP0=$(curl -s http://xxx.xx.200.162/temp.txt)
+TEMP=$((TEMP0/1000))
+# Check if temperature is a number
+if ! [[ $TEMP =~ ^[0-9]+(\.[0-9]+)?$ ]]; then
+    echo "UNKNOWN - Could not fetch temperature"
+    exit $UNKNOWN
+fi
+
+# Compare the temperature and return the appropriate status
+if (( $(echo "$TEMP < 20" | bc -l) )); then
+    echo "OK - Current temperature is $TEMP°C"
+    exit $OK
+elif (( $(echo "$TEMP >= 20 && $TEMP <= 30" | bc -l) )); then
+    echo "WARNING - Current temperature is $TEMP°C"
+    exit $WARNING
+elif (( $(echo "$TEMP > 30" | bc -l) )); then
+    echo "CRITICAL - Current temperature is $TEMP°C"
+    exit $CRITICAL
+else
+    echo "UNKNOWN - Unexpected temperature value"
+    exit $UNKNOWN
+fi
+
