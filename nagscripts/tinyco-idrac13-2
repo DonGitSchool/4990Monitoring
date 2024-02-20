@@ -1,14 +1,16 @@
 #!/bin/bash
 
-#For the power supplies
-output=$(wsman enumerate "http://schemas.dmtf.org/wbem/wscim/1/cim-schema/2/root/dcim/DCIM_PowerSupplyView" -h 10.150.110.13 -P 443 -u "idrac-wsman-dude" -p "1drac4lyf3!" -V -v -c dummy.cert -j utf-8 -y basic)
+#For Hard drives
+ip_address=$1
 
-# Check the DetailedState values
-if echo "$output" | grep -q "<n1:DetailedState>Presence Detected</n1:DetailedState>"; then
-    echo "OK - Both power supplies are detected."
+# Run the wsman command and store the output
+output=$(wsman enumerate "http://schemas.dmtf.org/wbem/wscim/1/cim-schema/2/root/dcim/DCIM_PhysicalDiskView" -h $ip_address -P 443 -u "idrac-wsman-dude" -p "1drac4lyf3!" -V -v -c dummy.cert -j utf-8 -y basic)
+
+# Check the PredictiveFailureState values
+if echo "$output" | grep -q "<n1:PredictiveFailureState>0</n1:PredictiveFailureState>"; then
+    echo "OK - Both hard drives are in good condition."
     exit 0
 else
-    echo "WARNING - One or more power supplies may be unplugged."
+    echo "WARNING - One or more hard drives may be failing."
     exit 1
 fi
-
