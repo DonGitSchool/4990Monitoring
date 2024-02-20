@@ -1,0 +1,14 @@
+#!/bin/bash
+
+#For the power supplies
+output=$(wsman enumerate "http://schemas.dmtf.org/wbem/wscim/1/cim-schema/2/root/dcim/DCIM_PowerSupplyView" -h 10.150.110.13 -P 443 -u "idrac-wsman-dude" -p "1drac4lyf3!" -V -v -c dummy.cert -j utf-8 -y basic)
+
+# Check the DetailedState values
+if echo "$output" | grep -q "<n1:DetailedState>Presence Detected</n1:DetailedState>"; then
+    echo "OK - Both power supplies are detected."
+    exit 0
+else
+    echo "WARNING - One or more power supplies may be unplugged."
+    exit 1
+fi
+
