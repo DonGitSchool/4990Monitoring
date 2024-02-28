@@ -1,0 +1,17 @@
+#!/bin/bash
+USERNAME="idrac-ipmi-dude"
+PASSWORD="1pm1w00t!"
+
+#Ip from args
+IDRAC=$1
+
+#Check RAID status
+echo "Checking RAID status on $IDRAC"
+RESULT=$(ipmitool -I lanplus -U $USERNAME -P $PASSWORD -L user -H $IDRAC sdr elist all | grep -i drive)
+if [[ $RESULT != *"Drive Present"* ]]; then
+    echo "RAID array degraded on $IDRAC"
+    exit 2
+else
+    echo "RAID array OK on $IDRAC"
+    exit 0
+fi
