@@ -110,6 +110,41 @@ define host{
     	_sql_user	nagiosdude	
     	_sql_pass	nagiosdudepw
 }
+define host{
+        use                     generic-host
+        host_name               idrac-13
+        alias                   idrac 13
+        address                 10.150.110.13
+        max_check_attempts      3
+        check_command       check-host-alive
+}
+
+define host{
+        use                     generic-host
+        host_name               idrac-10
+        alias                   idrac 10
+        address                 10.150.110.10
+        max_check_attempts      4
+        check_command       check-host-alive
+}
+
+define host{
+        use                     generic-host
+        host_name               idrac-11
+        alias                   idrac 11
+        address                 10.150.110.11
+        max_check_attempts      4
+        check_command       check-host-alive
+}
+
+define host{
+        use                     generic-host
+        host_name               idrac-12
+        alias                   idrac 12
+        address                 10.150.110.12
+        max_check_attempts      4
+        check_command       check-host-alive
+}
 
 define host{
     	use                     generic-host
@@ -201,5 +236,30 @@ define service{
     host_name               datacenter-2
     service_description     Temperature thru SNMP Check
     check_command           check_temperature
+}
+define service{
+    use                     generic-service
+    host_name               idrac-13
+    service_description     SMART Hard Drive Status
+    check_command           check_smart_status
+}
+define service{
+    use                     generic-service
+    host_name               idrac-13
+    service_description     PSU Check
+    check_command           check_psu_status
+}
+define service {
+	use			generic-service
+	host_name 		idrac-10,idrac-11,idrac-12,idrac-13
+	service_description 	RAID Check please
+	check_command 		check_raid_idrac
+}
+
+define service {
+	use			generic-service
+	host_name 		idrac-13
+	service_description 	Temperature Check IDRAC boi
+	check_command 		check_temp_idrac
 }
 
