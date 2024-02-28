@@ -1,14 +1,17 @@
 #!/bin/bash
+
+# Define the credentials
 USERNAME="idrac-ipmi-dude"
 PASSWORD="1pm1w00t!"
 
-#Ip from args
+# Get the IDRAC IP from the command line argument
 IDRAC=$1
 
-#Check RAID status
-echo "Checking RAID status on $IDRAC"
-RESULT=$(ipmitool -I lanplus -U $USERNAME -P $PASSWORD -L user -H $IDRAC sdr elist all | grep -i drive)
-if [[ $RESULT != *"Drive Present"* ]]; then
+RESULT=$(ipmitool -I lanplus -U $USERNAME -P $PASSWORD -L user -H $IDRAC sdr elist all 2>&1)
+if [[ $RESULT == *"Error in open session response message : insufficient resources for session"* ]]; then
+    echo "Error: Insufficient resources for session on $IDRAC"
+    exit 3
+elif [[ $RESULT != *"Drive Present"* ]]; then
     echo "RAID array degraded on $IDRAC"
     exit 2
 else
