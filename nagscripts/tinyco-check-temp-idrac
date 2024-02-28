@@ -1,0 +1,21 @@
+#!/bin/bash
+
+USERNAME="idrac-ipmi-dude"
+PASSWORD="1pm1w00t!"
+
+#ip from args
+IDRAC=$1
+
+# heck inlet temperature
+echo "Checking inlet temperature on $IDRAC"
+TEMP=$(ipmitool -I lanplus -U $USERNAME -P $PASSWORD -L user -H $IDRAC sdr elist full | grep "Inlet Temp" | awk '{print $8}')
+if (( $(echo "$TEMP > 35" | bc -l) )); then
+    echo "Critical temperature on $IDRAC"
+    exit 2
+elif (( $(echo "$TEMP > 30" | bc -l) )); then
+    echo "Warning temperature on $IDRAC"
+    exit 1
+else
+    echo "Temperature OK on $IDRAC"
+    exit 0
+fi
