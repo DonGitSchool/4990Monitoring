@@ -46,3 +46,13 @@ define command{
     command_name    check_psu_status
     command_line    /usr/local/nagios/libexec/tinyco-idrac13-2 $HOSTADDRESS$
 }
+
+define command {
+    command_name check_raid_idrac
+    command_line /usr/local/nagios/libexec/tinyco-check-raid $HOSTADDRESS$
+}
+
+define command {
+    command_name check_temp_idrac
+    command_line /usr/local/nagios/libexec/tinyco-check-temp-idrac $HOSTADDRESS$
+}
