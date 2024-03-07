@@ -1,0 +1,32 @@
+#!/bin/bash
+
+COMMUNITY="neuromancer42"
+OID1=".1.3.6.1.2.1.25.3.3.1.2.1" # OID for management CPU
+OID2=".1.3.6.1.2.1.25.3.3.1.2.2" # OID for dataplane CPU
+
+# Get the IP address from the command line arguments
+IP="$1"
+
+# Get CPU loads via SNMP
+CPU_LOAD1=$(snmpwalk -v 2c -c $COMMUNITY $IP $OID1 | awk '{ print $4 }')
+CPU_LOAD2=$(snmpwalk -v 2c -c $COMMUNITY $IP $OID2 | awk '{ print $4 }')
+
+# Function to check CPU load
+check_load() {
+    LOAD=$1
+    CPU_NAME=$2
+    if (( LOAD < 50 )); then
+        echo "OK. $CPU_NAME $LOAD%"
+    elif (( LOAD >= 50 )) && (( LOAD < 75 )); then
+        echo "WARNING. $CPU_NAME $LOAD%"
+    elif (( LOAD >= 75 )); then
+        echo "CRITICAL. $CPU_NAME $LOAD%"
+    fi
+}
+
+# Check CPU loads
+MSG1=$(check_load "$CPU_LOAD1" "mgmt cpu")
+MSG2=$(check_load "$CPU_LOAD2" "dataplane cpu")
+
+# Print the status messages
+echo "$MSG1 $MSG2"
