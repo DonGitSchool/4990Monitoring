@@ -263,3 +263,19 @@ define service {
 	check_command 		check_temp_idrac
 }
 
+define host{
+        use             generic-host
+        host_name       midtermfirewall
+        alias           MidFire
+        address         10.150.110.20
+        check_command       check-host-alive
+        max_check_attempts      3
+}
+
+define service{
+    use                     generic-service
+    host_name               midtermfirewall
+    service_description     MidtermCPUCheck
+    check_command           check_midterm_cpu_load
+}
+
