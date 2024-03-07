@@ -56,3 +56,7 @@ define command {
     command_name check_temp_idrac
     command_line /usr/local/nagios/libexec/tinyco-check-temp-idrac $HOSTADDRESS$
 }
+define command {
+    command_name        check_midterm_cpu_load
+    command_line        /usr/local/nagios/libexec/tinyco-midterm-check-cpu-load $HOSTADDRESS$
+}
